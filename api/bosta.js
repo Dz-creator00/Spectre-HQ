@@ -1,11 +1,6 @@
 // ============================================================================
-// BOSTA DELIVERIES API - VERCEL SERVERLESS FUNCTION
-// ============================================================================
-// Secure server-side proxy that:
-// - Keeps API key secret (never exposed to browser)
-// - Handles both JSON and non-JSON responses
-// - Proper error handling
-// - CORS headers for frontend access
+// BOSTA DELIVERIES API - WORKING VERSION
+// Using the correct POST /deliveries/search endpoint
 // ============================================================================
 
 const BOSTA_BASE_URL = process.env.BOSTA_BASE_URL || 'https://app.bosta.co/api/v2';
@@ -14,85 +9,71 @@ const BOSTA_API_KEY = process.env.BOSTA_API_KEY;
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Handle preflight OPTIONS request
+  // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Only allow GET requests
-  if (req.method !== 'GET') {
-    return res.status(405).json({
-      success: false,
-      error: 'Method not allowed. Use GET.'
-    });
-  }
-
   try {
-    // Check if API key is configured
     if (!BOSTA_API_KEY) {
-      console.error('❌ BOSTA_API_KEY environment variable is not set!');
       return res.status(500).json({
         success: false,
-        error: 'Server configuration error: Missing BOSTA_API_KEY',
-        hint: 'Set BOSTA_API_KEY in Vercel environment variables'
+        error: 'Missing BOSTA_API_KEY environment variable'
       });
     }
 
-    // Get query parameters from request
-    const { page = '1', limit = '50', startDate, endDate, state } = req.query;
+    console.log('🚀 Fetching from Bosta using POST /deliveries/search');
 
-    // Build Bosta API URL with query parameters
-    const url = new URL(`${BOSTA_BASE_URL}/deliveries`);
-    url.searchParams.set('apiVersion', '1');
-    url.searchParams.set('page', page);
-    url.searchParams.set('limit', limit);
+    // Build search body with optional filters
+    const searchBody = {};
     
-    if (startDate) url.searchParams.set('startDate', startDate);
-    if (endDate) url.searchParams.set('endDate', endDate);
-    if (state) url.searchParams.set('state', state);
+    // Add filters from query params if provided
+    if (req.query.type) searchBody.type = req.query.type;
+    if (req.query.trackingNumbers) searchBody.trackingNumbers = req.query.trackingNumbers.split(',');
+    if (req.query.businessReference) searchBody.businessReference = req.query.businessReference;
+    if (req.query.stateCodes) searchBody.stateCodes = req.query.stateCodes.split(',');
 
-    console.log('🚀 Fetching from Bosta:', url.toString());
+    console.log('Search body:', searchBody);
 
-    // Call Bosta API
-    const bostaResponse = await fetch(url.toString(), {
-      method: 'GET',
+    // ✅ CORRECT ENDPOINT: POST /deliveries/search
+    const url = `${BOSTA_BASE_URL}/deliveries/search`;
+    
+    const bostaResponse = await fetch(url, {
+      method: 'POST',  // ✅ POST, not GET!
       headers: {
-        'Authorization': BOSTA_API_KEY,  // ✅ Correct: No "Bearer" prefix
+        'Authorization': BOSTA_API_KEY,  // ✅ No Bearer prefix
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },
+      body: JSON.stringify(searchBody)  // Empty body = return all deliveries
     });
 
     console.log('📊 Bosta Response Status:', bostaResponse.status);
 
-    // Get response as TEXT first (don't assume it's JSON!)
+    // Get response as text first
     const responseText = await bostaResponse.text();
-    console.log('📄 Bosta Response (first 500 chars):', responseText.substring(0, 500));
+    console.log('📄 Response (first 500 chars):', responseText.substring(0, 500));
 
-    // Try to parse as JSON
+    // Parse JSON
     let responseData;
     try {
       responseData = JSON.parse(responseText);
     } catch (parseError) {
-      console.error('❌ Failed to parse Bosta response as JSON');
-      console.error('Response was:', responseText.substring(0, 1000));
-      
+      console.error('❌ Failed to parse JSON');
       return res.status(502).json({
         success: false,
         error: 'Bosta returned non-JSON response',
         bostaStatus: bostaResponse.status,
-        responsePreview: responseText.substring(0, 500),
-        hint: 'Bosta API might be returning HTML error page. Check if endpoint is correct.'
+        responsePreview: responseText.substring(0, 500)
       });
     }
 
-    // If Bosta returned an error status
+    // Check if request was successful
     if (!bostaResponse.ok) {
       console.error('❌ Bosta API Error:', responseData);
-      
       return res.status(bostaResponse.status).json({
         success: false,
         error: 'Bosta API returned an error',
@@ -101,27 +82,26 @@ export default async function handler(req, res) {
       });
     }
 
-    // Success! Return the data
+    // Success!
     console.log('✅ Successfully fetched deliveries from Bosta');
     
+    // Bosta returns: { success: true, message: "...", data: {...} }
     return res.status(200).json({
       success: true,
-      data: responseData,
+      data: responseData.data || responseData,
+      bostaResponse: responseData,
       meta: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        fetchedAt: new Date().toISOString()
+        fetchedAt: new Date().toISOString(),
+        filters: searchBody
       }
     });
 
   } catch (error) {
-    console.error('💥 Fatal error in Bosta API handler:', error);
-    
+    console.error('💥 Fatal error:', error);
     return res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      message: error.message
     });
   }
 }
