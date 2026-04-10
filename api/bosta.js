@@ -1,248 +1,127 @@
 // ============================================================================
-// BOSTA API PROXY - PRODUCTION VERSION
+// BOSTA DELIVERIES API - VERCEL SERVERLESS FUNCTION
 // ============================================================================
-// Based on official Bosta documentation from docs.bosta.co
-// Confirmed Base URL: https://app.bosta.co/api/v2
-// Confirmed Auth: Authorization: <API_KEY> (no "Bearer" prefix)
-// Confirmed Versioning: ?apiVersion=1 query parameter
-// ============================================================================
-
-const BOSTA_CONFIG = {
-  baseUrl: 'https://app.bosta.co/api/v2',
-  apiKey: '61625326d649991817a4faa1cf1e5b2fe93bfee71b2e3f46f7cf9bb5ed6f5e80',
-  apiVersion: '1'
-};
-
-// ============================================================================
-// FETCH DELIVERIES (List all deliveries)
-// ============================================================================
-// Note: This endpoint is NOT officially documented on bosta.co
-// Using standard REST convention: GET /deliveries?apiVersion=1
+// Secure server-side proxy that:
+// - Keeps API key secret (never exposed to browser)
+// - Handles both JSON and non-JSON responses
+// - Proper error handling
+// - CORS headers for frontend access
 // ============================================================================
 
-export async function fetchDeliveries(filters = {}) {
+const BOSTA_BASE_URL = process.env.BOSTA_BASE_URL || 'https://app.bosta.co/api/v2';
+const BOSTA_API_KEY = process.env.BOSTA_API_KEY;
+
+export default async function handler(req, res) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle preflight OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  // Only allow GET requests
+  if (req.method !== 'GET') {
+    return res.status(405).json({
+      success: false,
+      error: 'Method not allowed. Use GET.'
+    });
+  }
+
   try {
-    console.log('🚀 Fetching Bosta deliveries...');
+    // Check if API key is configured
+    if (!BOSTA_API_KEY) {
+      console.error('❌ BOSTA_API_KEY environment variable is not set!');
+      return res.status(500).json({
+        success: false,
+        error: 'Server configuration error: Missing BOSTA_API_KEY',
+        hint: 'Set BOSTA_API_KEY in Vercel environment variables'
+      });
+    }
+
+    // Get query parameters from request
+    const { page = '1', limit = '50', startDate, endDate, state } = req.query;
+
+    // Build Bosta API URL with query parameters
+    const url = new URL(`${BOSTA_BASE_URL}/deliveries`);
+    url.searchParams.set('apiVersion', '1');
+    url.searchParams.set('page', page);
+    url.searchParams.set('limit', limit);
     
-    // Build URL with query parameters
-    const url = new URL(`${BOSTA_CONFIG.baseUrl}/deliveries`);
-    url.searchParams.set('apiVersion', BOSTA_CONFIG.apiVersion);
-    
-    // Add optional filters
-    if (filters.page) url.searchParams.set('page', filters.page);
-    if (filters.limit) url.searchParams.set('limit', filters.limit);
-    if (filters.startDate) url.searchParams.set('startDate', filters.startDate);
-    if (filters.endDate) url.searchParams.set('endDate', filters.endDate);
-    if (filters.state) url.searchParams.set('state', filters.state);
-    
-    console.log('📡 Request URL:', url.toString());
-    
-    const response = await fetch(url.toString(), {
+    if (startDate) url.searchParams.set('startDate', startDate);
+    if (endDate) url.searchParams.set('endDate', endDate);
+    if (state) url.searchParams.set('state', state);
+
+    console.log('🚀 Fetching from Bosta:', url.toString());
+
+    // Call Bosta API
+    const bostaResponse = await fetch(url.toString(), {
       method: 'GET',
       headers: {
-        'Authorization': BOSTA_CONFIG.apiKey,  // ✅ Correct: No "Bearer" prefix
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Authorization': BOSTA_API_KEY,  // ✅ Correct: No "Bearer" prefix
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       }
     });
 
-    console.log('📊 Response Status:', response.status, response.statusText);
-    console.log('📋 Response Headers:', Object.fromEntries(response.headers.entries()));
+    console.log('📊 Bosta Response Status:', bostaResponse.status);
 
-    // Get response body
-    const contentType = response.headers.get('content-type');
-    const responseText = await response.text();
-    
-    console.log('📄 Response Content-Type:', contentType);
-    console.log('📦 Response Body (first 500 chars):', responseText.substring(0, 500));
+    // Get response as TEXT first (don't assume it's JSON!)
+    const responseText = await bostaResponse.text();
+    console.log('📄 Bosta Response (first 500 chars):', responseText.substring(0, 500));
 
     // Try to parse as JSON
-    let data;
+    let responseData;
     try {
-      data = JSON.parse(responseText);
-    } catch (e) {
-      console.error('❌ Failed to parse JSON:', e.message);
-      return {
+      responseData = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('❌ Failed to parse Bosta response as JSON');
+      console.error('Response was:', responseText.substring(0, 1000));
+      
+      return res.status(502).json({
         success: false,
-        error: 'Response is not valid JSON',
-        status: response.status,
-        body: responseText
-      };
+        error: 'Bosta returned non-JSON response',
+        bostaStatus: bostaResponse.status,
+        responsePreview: responseText.substring(0, 500),
+        hint: 'Bosta API might be returning HTML error page. Check if endpoint is correct.'
+      });
     }
 
-    // Check if request was successful
-    if (!response.ok) {
-      console.error('❌ API Error:', data);
-      return {
+    // If Bosta returned an error status
+    if (!bostaResponse.ok) {
+      console.error('❌ Bosta API Error:', responseData);
+      
+      return res.status(bostaResponse.status).json({
         success: false,
-        error: data.message || data.error || 'Unknown error',
-        status: response.status,
-        data: data
-      };
+        error: 'Bosta API returned an error',
+        bostaStatus: bostaResponse.status,
+        bostaError: responseData
+      });
     }
 
-    // Success!
-    console.log('✅ Successfully fetched deliveries!');
-    console.log('📊 Data structure:', Object.keys(data));
+    // Success! Return the data
+    console.log('✅ Successfully fetched deliveries from Bosta');
     
-    return {
+    return res.status(200).json({
       success: true,
-      status: response.status,
-      data: data,
-      deliveries: data.deliveries || data.data || data.list || [], // Handle different response formats
-      count: data.count || data.total || 0,
-      page: data.page || 1
-    };
-
-  } catch (error) {
-    console.error('💥 Fatal Error:', error);
-    return {
-      success: false,
-      error: error.message,
-      details: error.stack
-    };
-  }
-}
-
-// ============================================================================
-// FETCH DELIVERY BY TRACKING NUMBER
-// ============================================================================
-// Using standard REST convention: GET /deliveries/:trackingNumber
-// ============================================================================
-
-export async function fetchDeliveryByTracking(trackingNumber) {
-  try {
-    console.log(`🔍 Fetching delivery: ${trackingNumber}`);
-    
-    const url = `${BOSTA_CONFIG.baseUrl}/deliveries/${trackingNumber}?apiVersion=${BOSTA_CONFIG.apiVersion}`;
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': BOSTA_CONFIG.apiKey,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+      data: responseData,
+      meta: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        fetchedAt: new Date().toISOString()
       }
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: data.message || 'Failed to fetch delivery',
-        status: response.status
-      };
-    }
-
-    return {
-      success: true,
-      status: response.status,
-      data: data
-    };
-
   } catch (error) {
-    return {
-      success: false,
-      error: error.message
-    };
-  }
-}
-
-// ============================================================================
-// ALTERNATIVE ENDPOINT TESTS
-// ============================================================================
-// In case the main endpoint doesn't work, test these alternatives
-// ============================================================================
-
-export async function testAlternativeEndpoints() {
-  const alternatives = [
-    '/deliveries',
-    '/deliveries/list',
-    '/business/deliveries',
-    '/deliveries/all',
-    '/v2/deliveries',  // In case v2 is part of the path, not base
-  ];
-
-  console.log('🧪 Testing alternative endpoints...\n');
-
-  for (const path of alternatives) {
-    const url = `${BOSTA_CONFIG.baseUrl}${path}?apiVersion=${BOSTA_CONFIG.apiVersion}`;
+    console.error('💥 Fatal error in Bosta API handler:', error);
     
-    try {
-      console.log(`Testing: ${url}`);
-      
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Authorization': BOSTA_CONFIG.apiKey,
-          'Accept': 'application/json'
-        }
-      });
-
-      console.log(`  Status: ${response.status}`);
-      
-      const text = await response.text();
-      
-      if (response.headers.get('content-type')?.includes('application/json')) {
-        const data = JSON.parse(text);
-        console.log(`  ✅ Valid JSON response!`);
-        console.log(`  Preview:`, JSON.stringify(data).substring(0, 200));
-        
-        if (response.status === 200) {
-          console.log(`\n  🎉 SUCCESS! Working endpoint found: ${path}\n`);
-          return { success: true, endpoint: path, data };
-        }
-      }
-      
-      console.log('');
-      
-    } catch (error) {
-      console.log(`  ❌ Error: ${error.message}\n`);
-    }
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
-
-  console.log('❌ No working alternative endpoint found\n');
-  return { success: false };
-}
-
-// ============================================================================
-// DIAGNOSTIC FUNCTION
-// ============================================================================
-
-export async function diagnosticTest() {
-  console.log('🔍 BOSTA API DIAGNOSTIC TEST');
-  console.log('═'.repeat(80));
-  console.log('\n📋 Configuration:');
-  console.log('  Base URL:', BOSTA_CONFIG.baseUrl);
-  console.log('  API Key:', BOSTA_CONFIG.apiKey.substring(0, 20) + '...');
-  console.log('  API Version:', BOSTA_CONFIG.apiVersion);
-  console.log('\n' + '─'.repeat(80) + '\n');
-
-  // Test 1: Main endpoint
-  console.log('TEST 1: Main deliveries endpoint');
-  console.log('─'.repeat(80));
-  const result1 = await fetchDeliveries({ limit: 10 });
-  console.log('\nResult:', JSON.stringify(result1, null, 2));
-  console.log('\n' + '─'.repeat(80) + '\n');
-
-  // Test 2: Alternative endpoints
-  if (!result1.success) {
-    console.log('TEST 2: Alternative endpoints');
-    console.log('─'.repeat(80));
-    const result2 = await testAlternativeEndpoints();
-    console.log('\n' + '─'.repeat(80) + '\n');
-  }
-
-  console.log('═'.repeat(80));
-  console.log('🏁 Diagnostic test complete!\n');
-}
-
-// ============================================================================
-// AUTO-RUN DIAGNOSTIC IF EXECUTED DIRECTLY
-// ============================================================================
-
-if (typeof window === 'undefined') {
-  // Running in Node.js
-  diagnosticTest().catch(console.error);
 }
