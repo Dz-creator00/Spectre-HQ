@@ -1,0 +1,2057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spectre-HQ Pro</title>
+<style>
+:root {
+  --accent: #B8B8B8;
+  --accent-dark: #909090;
+  --bg-main: #0a0a0a;
+  --bg-card: #1a1a1a;
+  --bg-input: #0f0f0f;
+  --border: #2a2a2a;
+  --text-primary: #fff;
+  --text-secondary: #888;
+  --green: #10b981;
+  --red: #ef4444;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg-main); color: var(--text-primary); }
+
+input, select, textarea { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary); padding: 12px 16px; border-radius: 8px; font-size: 14px; width: 100%; font-family: inherit; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+input::placeholder { color: var(--text-secondary); }
+
+button { font-family: inherit; background: var(--accent); color: #000; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+button:hover { opacity: 0.85; }
+button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); }
+button.success { background: var(--green); color: #fff; }
+button.danger { background: transparent; color: var(--red); padding: 8px 12px; }
+button.small { padding: 8px 16px; font-size: 13px; }
+button.icon-btn { background: transparent; color: var(--accent); border: none; padding: 8px; font-size: 16px; cursor: pointer; }
+
+.sidebar { width: 256px; background: var(--bg-input); height: 100vh; border-right: 1px solid var(--border); padding: 20px; position: fixed; display: flex; flex-direction: column; overflow-y: auto; }
+.brand-header { margin-bottom: 30px; }
+.brand-avatar { width: 40px; height: 40px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: #000; margin-bottom: 12px; }
+.brand-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.brand-email { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+.brand-tag { background: var(--bg-card); color: var(--accent); padding: 4px 12px; border-radius: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
+
+.nav-btn { width: 100%; padding: 12px 16px; background: transparent; color: var(--text-secondary); border: none; border-radius: 8px; text-align: left; margin-bottom: 4px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+.nav-btn:hover { background: rgba(184, 184, 184, 0.1); color: var(--text-primary); }
+.nav-btn.active { background: var(--accent); color: #000; font-weight: 600; }
+
+.main-content { margin-left: 256px; padding: 40px; min-height: 100vh; }
+.page-header { margin-bottom: 40px; }
+.page-title { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+.page-subtitle { color: var(--text-secondary); font-size: 15px; }
+
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; position: relative; }
+.card.accent-border::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); border-radius: 12px 12px 0 0; }
+
+.card-header { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 16px; letter-spacing: 1px; font-weight: 600; }
+
+.stat-card { text-align: left; }
+.stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; font-weight: 600; }
+.stat-value { font-size: 32px; font-weight: 700; }
+.stat-value.green { color: var(--green); }
+.stat-value.red { color: var(--red); }
+
+.grid { display: grid; gap: 20px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.form-row { display: grid; gap: 12px; margin-bottom: 16px; align-items: center; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 16px; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+td { font-size: 14px; }
+tr:hover { background: rgba(255,255,255,0.02); }
+
+.search-box { background: var(--bg-input); border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; }
+.search-box input { background: transparent; border: none; padding: 0; }
+
+.filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.filter-tab { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.filter-tab:hover { border-color: var(--accent); }
+.filter-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); font-size: 14px; }
+.empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.3; }
+
+.master-wallet { background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); border: 1px solid var(--accent); }
+.master-wallet .stat-value { color: var(--accent); }
+.view-history { color: var(--accent); font-size: 13px; text-decoration: none; margin-top: 8px; display: inline-block; }
+
+.quick-actions { display: flex; gap: 12px; margin-top: 20px; }
+.quick-action-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); padding: 10px 20px; border-radius: 8px; font-size: 13px; text-decoration: none; transition: all 0.2s; cursor: pointer; }
+.quick-action-btn:hover { border-color: var(--accent); }
+
+.login-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+.login-card { width: 420px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 40px; }
+.login-title { text-align: center; font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+.login-subtitle { text-align: center; color: var(--text-secondary); font-size: 15px; margin-bottom: 32px; }
+
+.modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+.modal.active { display: flex; }
+.modal-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; width: 500px; max-width: 90vw; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.modal-title { font-size: 20px; font-weight: 600; }
+.modal-close { background: transparent; color: var(--text-secondary); border: none; font-size: 24px; cursor: pointer; padding: 0; width: 32px; height: 32px; }
+
+.action-buttons { display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
+
+.settings-section { margin-bottom: 40px; }
+.settings-section-title { font-size: 14px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 16px; letter-spacing: 1px; }
+.settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; }
+.settings-item-label { font-size: 14px; }
+.settings-item-value { font-size: 13px; color: var(--text-secondary); }
+
+.status-badge { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+.status-badge.connected { background: rgba(16, 185, 129, 0.2); color: var(--green); }
+.status-badge.disconnected { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+
+.upload-area { border: 2px dashed var(--border); border-radius: 12px; padding: 60px 20px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
+.upload-area:hover { border-color: var(--accent); background: rgba(184,184,184,0.05); }
+.upload-icon { font-size: 48px; margin-bottom: 16px; }
+
+.w-full { width: 100%; }
+.mb-4 { margin-bottom: 30px; }
+.text-right { text-align: right; }
+
+@media (max-width: 768px) {
+  .sidebar { width: 100%; height: auto; position: relative; }
+  .main-content { margin-left: 0; padding: 20px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div id="app">Loading...</div>
+
+<div id="addEntryModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">New Entry</div>
+      <button class="modal-close" onclick="closeModal('addEntryModal')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input type="date" id="modalDate" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select id="modalType">
+        <option value="in">Money In</option>
+        <option value="out">Money Out</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select id="modalCategory">
+        <option value="">Select category...</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Amount (EGP)</label>
+      <input type="number" id="modalAmount" placeholder="0.00" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Reason</label>
+      <input type="text" id="modalReason" placeholder="e.g., Bank Transfer 30 Mar" />
+    </div>
+    <div class="action-buttons">
+      <button class="secondary" onclick="closeModal('addEntryModal')">Cancel</button>
+      <button onclick="saveEntry()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<div id="editEntryModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Edit Entry</div>
+      <button class="modal-close" onclick="closeModal('editEntryModal')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input type="date" id="editModalDate" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select id="editModalType">
+        <option value="in">Money In</option>
+        <option value="out">Money Out</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select id="editModalCategory">
+        <option value="">Select category...</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Amount (EGP)</label>
+      <input type="number" id="editModalAmount" placeholder="0.00" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Reason</label>
+      <input type="text" id="editModalReason" placeholder="e.g., Bank Transfer 30 Mar" />
+    </div>
+    <div class="action-buttons">
+      <button class="secondary" onclick="closeModal('editEntryModal')">Cancel</button>
+      <button onclick="updateEntry()">Update Entry</button>
+    </div>
+  </div>
+</div>
+
+<div id="bostaConnectModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Connect Bosta API</div>
+      <button class="modal-close" onclick="closeModal('bostaConnectModal')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">API Key</label>
+      <input type="text" id="bostaApiKey" placeholder="Enter your Bosta API key" />
+      <p style="color: var(--text-secondary); font-size: 12px; margin-top: 8px;">Get your API key from Bosta dashboard → Settings → API Keys</p>
+    </div>
+    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+      <button class="secondary" onclick="closeModal('bostaConnectModal')">Cancel</button>
+      <button onclick="saveBostaKeys()">Connect</button>
+    </div>
+  </div>
+</div>
+
+<div id="shopifyConnectModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Connect Shopify</div>
+      <button class="modal-close" onclick="closeModal('shopifyConnectModal')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Store URL</label>
+      <input type="text" id="shopifyStoreUrl" placeholder="your-store.myshopify.com" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">API Key</label>
+      <input type="text" id="shopifyApiKey" placeholder="Enter your Shopify Admin API key" />
+    </div>
+    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+      <button class="secondary" onclick="closeModal('shopifyConnectModal')">Cancel</button>
+      <button onclick="saveShopifyKeys()">Connect</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="bostaFileInput" accept=".xlsx,.xls" style="display: none;" onchange="handleBostaUpload(event)" />
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+  const { createClient } = supabase;
+  const db = createClient(
+    'https://aoblmlzfigpdowxylvma.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvYmxtbHpmaWdwZG93eHlsdm1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NjEzMjksImV4cCI6MjA5MTAzNzMyOX0.5szGfdb3c-WwVXjulvcGplFVagtYSHIAi9h6jUN-lwg'
+  );
+
+  let state = { 
+    currentBrand: null, 
+    currentPage: 'home', 
+    transactions: [], 
+    products: [],
+    categories: { in: [], out: [] },
+    tasks: [],
+    bostaReports: [],
+    bostaMetrics: null,
+    bostaLoading: false,
+    shopifyProducts: [],
+    shopifyLoading: false,
+    revenueReconciliation: null,
+    reconciliationLoading: false,
+    reconciliationDateRange: {
+      from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      to: new Date().toISOString().split('T')[0]
+    },
+    searchQuery: '',
+    currentMonth: new Date().toISOString().slice(0, 7),
+    dateFilter: 'all',
+    editingTransaction: null
+  };
+  
+  const fmt = (n) => `EGP ${parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  const pages = ['Home', 'Analytics', 'Cashflow', 'Bosta Orders', 'Stock Value', 'Products', 'Categories', 'BI Assistant', 'To Do', 'Settings'];
+
+  window.openModal = (id) => {
+    if (id === 'addEntryModal') {
+      document.getElementById('modalDate').value = new Date().toISOString().split('T')[0];
+      updateCategoryDropdown('modalCategory', 'in');
+    }
+    document.getElementById(id).classList.add('active');
+  };
+  
+  window.closeModal = (id) => document.getElementById(id).classList.remove('active');
+  
+  window.openEditModal = (txId) => {
+    const tx = state.transactions.find(t => t.id === txId);
+    if (!tx) return;
+    
+    state.editingTransaction = tx;
+    document.getElementById('editModalDate').value = tx.date;
+    document.getElementById('editModalType').value = tx.type;
+    document.getElementById('editModalAmount').value = tx.amount;
+    document.getElementById('editModalReason').value = tx.reason;
+    
+    updateCategoryDropdown('editModalCategory', tx.type);
+    document.getElementById('editModalCategory').value = tx.category || '';
+    
+    openModal('editEntryModal');
+  };
+  
+  window.updateEntry = async () => {
+    if (!state.editingTransaction) return;
+    
+    const date = document.getElementById('editModalDate').value;
+    const type = document.getElementById('editModalType').value;
+    const category = document.getElementById('editModalCategory').value;
+    const amount = document.getElementById('editModalAmount').value;
+    const reason = document.getElementById('editModalReason').value;
+    
+    if (!date || !amount || !reason) return alert('Fill all fields');
+    
+    const { data, error } = await db.from('transactions')
+      .update({ date, type, category, amount: parseFloat(amount), reason })
+      .eq('id', state.editingTransaction.id)
+      .select();
+    
+    if (error) {
+      return alert('Error updating: ' + error.message);
+    }
+    
+    if (data) {
+      const index = state.transactions.findIndex(t => t.id === state.editingTransaction.id);
+      if (index !== -1) state.transactions[index] = data[0];
+      state.editingTransaction = null;
+      closeModal('editEntryModal');
+      render();
+    }
+  };
+  
+  function updateCategoryDropdown(selectId, type) {
+    const select = document.getElementById(selectId);
+    const categories = type === 'in' ? state.categories.in : state.categories.out;
+    select.innerHTML = '<option value="">Select category...</option>' + 
+      categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+  }
+  
+  window.saveEntry = async () => {
+    const date = document.getElementById('modalDate').value;
+    const type = document.getElementById('modalType').value;
+    const category = document.getElementById('modalCategory').value;
+    const amount = document.getElementById('modalAmount').value;
+    const reason = document.getElementById('modalReason').value;
+    
+    if (!date || !amount || !reason) return alert('Fill all fields');
+    
+    const { data, error } = await db.from('transactions').insert([{
+      brand_id: state.currentBrand.id,
+      date,
+      type,
+      category,
+      amount: parseFloat(amount),
+      reason
+    }]).select();
+    
+    if (error) {
+      return alert('Error: ' + error.message);
+    }
+    
+    if (data) {
+      state.transactions.push(data[0]);
+      document.getElementById('modalAmount').value = '';
+      document.getElementById('modalReason').value = '';
+      document.getElementById('modalCategory').value = '';
+      closeModal('addEntryModal');
+      render();
+    }
+  };
+
+  window.setDateFilter = (filter) => {
+    state.dateFilter = filter;
+    render();
+  };
+  
+  window.exportToExcel = () => {
+    const filteredTx = getFilteredTransactions();
+    const data = filteredTx.map((tx, i) => ({
+      'Date': new Date(tx.date).toLocaleDateString(),
+      'Type': tx.type.toUpperCase(),
+      'Category': tx.category || '',
+      'Amount': parseFloat(tx.amount),
+      'Reason': tx.reason,
+      'Balance': calculateBalance(filteredTx, i)
+    }));
+    
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Cashflow");
+    XLSX.writeFile(wb, `${state.currentBrand.brand_name}_Cashflow_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+  
+  // ====== BOSTA & SHOPIFY INTEGRATION ======
+  
+  window.saveBostaKeys = async () => {
+    const apiKey = document.getElementById('bostaApiKey').value;
+    if (!apiKey) return alert('Enter API key');
+    
+    const { error } = await db.from('brands')
+      .update({ bosta_api_key: apiKey, bosta_connected: true })
+      .eq('id', state.currentBrand.id);
+    
+    if (error) return alert('Error: ' + error.message);
+    
+    state.currentBrand.bosta_api_key = apiKey;
+    state.currentBrand.bosta_connected = true;
+    localStorage.setItem('spectre_brand', JSON.stringify(state.currentBrand));
+    closeModal('bostaConnectModal');
+    alert('✅ Bosta connected successfully!');
+    render();
+  };
+  
+  window.saveShopifyKeys = async () => {
+    const storeUrl = document.getElementById('shopifyStoreUrl').value;
+    const apiKey = document.getElementById('shopifyApiKey').value;
+    if (!storeUrl || !apiKey) return alert('Fill all fields');
+    
+    const { error } = await db.from('brands')
+      .update({ shopify_store_url: storeUrl, shopify_api_key: apiKey, shopify_connected: true })
+      .eq('id', state.currentBrand.id);
+    
+    if (error) return alert('Error: ' + error.message);
+    
+    state.currentBrand.shopify_store_url = storeUrl;
+    state.currentBrand.shopify_api_key = apiKey;
+    state.currentBrand.shopify_connected = true;
+    localStorage.setItem('spectre_brand', JSON.stringify(state.currentBrand));
+    closeModal('shopifyConnectModal');
+    alert('✅ Shopify connected successfully!');
+    render();
+  };
+  
+  window.triggerBostaUpload = () => {
+    document.getElementById('bostaFileInput').click();
+  };
+  
+  window.handleBostaUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+        
+        await processBostaReport(file.name, jsonData);
+      } catch (err) {
+        alert('Error parsing file: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    
+    // Reset file input
+    event.target.value = '';
+  };
+  
+  async function processBostaReport(filename, data) {
+    // Create SKU map from products
+    const skuMap = {};
+    state.products.forEach(p => {
+      skuMap[p.sku.toLowerCase()] = p.name;
+    });
+    
+    const report = {
+      totalOrders: data.length,
+      totalRevenue: 0,
+      bySKU: {}
+    };
+    
+    // Process each row
+    data.forEach(row => {
+      // Try multiple possible column names for SKU
+      const sku = (row.SKU || row.sku || row['Product SKU'] || row['Item SKU'] || '').toString().toLowerCase();
+      const amount = parseFloat(row.Amount || row.amount || row.Price || row.price || row.Total || row.total || 0);
+      const quantity = parseInt(row.Quantity || row.quantity || row.Qty || row.qty || 1);
+      
+      if (sku) {
+        if (!report.bySKU[sku]) {
+          report.bySKU[sku] = {
+            sku: sku.toUpperCase(),
+            name: skuMap[sku] || 'Unknown Product',
+            orders: 0,
+            quantity: 0,
+            revenue: 0
+          };
+        }
+        report.bySKU[sku].orders++;
+        report.bySKU[sku].quantity += quantity;
+        report.bySKU[sku].revenue += amount;
+        report.totalRevenue += amount;
+      }
+    });
+    
+    // Save to database
+    const { data: savedReport, error } = await db.from('bosta_reports').insert([{
+      brand_id: state.currentBrand.id,
+      filename,
+      total_orders: report.totalOrders,
+      total_revenue: report.totalRevenue,
+      report_data: report
+    }]).select();
+    
+    if (error) {
+      alert('Error saving report: ' + error.message);
+    } else {
+      state.bostaReports.unshift(savedReport[0]);
+      alert(`✅ Report processed! ${report.totalOrders} orders, ${fmt(report.totalRevenue)} revenue`);
+      render();
+    }
+  }
+  
+  window.deleteBostaReport = async (reportId) => {
+    if (!confirm('Delete this report?')) return;
+    
+    await db.from('bosta_reports').delete().eq('id', reportId);
+    state.bostaReports = state.bostaReports.filter(r => r.id !== reportId);
+    render();
+  };
+  
+  // ====== BOSTA API INTEGRATION ======
+  
+  window.syncBostaDeliveries = async () => {
+    if (!state.currentBrand.bosta_connected || !state.currentBrand.bosta_api_key) {
+      return alert('Please connect Bosta API first in Settings');
+    }
+    
+    state.bostaLoading = true;
+    render();
+    
+    try {
+      const apiKey = state.currentBrand.bosta_api_key;
+      
+      // Get deliveries from last 7 days
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const fromDate = sevenDaysAgo.toISOString().split('T')[0];
+      const toDate = new Date().toISOString().split('T')[0];
+      
+      // Fetch deliveries from Bosta
+      const deliveriesUrl = `/api/bosta?apiKey=${encodeURIComponent(apiKey)}&endpoint=deliveries&from=${fromDate}&to=${toDate}`;
+      const response = await fetch(deliveriesUrl);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Process deliveries and extract COD data
+      const deliveries = data.deliveries || data.list || data || [];
+      
+      // Create SKU map from products
+      const skuMap = {};
+      state.products.forEach(p => {
+        skuMap[p.sku.toLowerCase()] = p;
+      });
+      
+      let totalCOD = 0;
+      let deliveredCount = 0;
+      let pendingCOD = 0;
+      const bySKU = {};
+      
+      deliveries.forEach(delivery => {
+        const status = delivery.state?.value || delivery.status;
+        const cod = parseFloat(delivery.cod || delivery.cashOnDelivery || 0);
+        const sku = (delivery.specs?.sku || delivery.businessReference || 'N/A').toLowerCase();
+        
+        // Track by SKU
+        if (!bySKU[sku]) {
+          bySKU[sku] = {
+            sku: sku.toUpperCase(),
+            name: skuMap[sku]?.name || 'Unknown Product',
+            delivered: 0,
+            pending: 0,
+            failed: 0,
+            codCollected: 0,
+            codPending: 0
+          };
+        }
+        
+        // Count by status
+        if (status === 'DELIVERED' || status === 'delivered') {
+          deliveredCount++;
+          totalCOD += cod;
+          bySKU[sku].delivered++;
+          bySKU[sku].codCollected += cod;
+        } else if (status === 'FAILED' || status === 'failed' || status === 'CANCELLED') {
+          bySKU[sku].failed++;
+        } else {
+          // Pending/In Transit
+          pendingCOD += cod;
+          bySKU[sku].pending++;
+          bySKU[sku].codPending += cod;
+        }
+      });
+      
+      // Store Bosta metrics in state
+      state.bostaMetrics = {
+        totalCOD,
+        deliveredCount,
+        pendingCOD,
+        totalDeliveries: deliveries.length,
+        successRate: deliveries.length > 0 ? (deliveredCount / deliveries.length * 100) : 0,
+        bySKU: Object.values(bySKU),
+        lastSync: new Date().toISOString()
+      };
+      
+      state.bostaLoading = false;
+      alert(`✅ Synced ${deliveries.length} deliveries!\n\nDelivered: ${deliveredCount}\nCOD Collected: ${fmt(totalCOD)}\nPending COD: ${fmt(pendingCOD)}`);
+      render();
+      
+    } catch (error) {
+      state.bostaLoading = false;
+      alert(`Error syncing Bosta: ${error.message}\n\nMake sure:\n1. API key is valid\n2. You have deliveries in the last 7 days`);
+      render();
+    }
+  };
+  
+  window.autoCreateCODTransactions = async () => {
+    if (!state.bostaMetrics || !state.bostaMetrics.totalCOD) {
+      return alert('Please sync Bosta deliveries first');
+    }
+    
+    if (!confirm(`Create income transaction for EGP ${state.bostaMetrics.totalCOD.toFixed(2)} from Bosta COD?\n\nThis will add it to your Cashflow.`)) {
+      return;
+    }
+    
+    try {
+      // Create transaction for collected COD
+      const { data, error } = await db.from('transactions').insert([{
+        brand_id: state.currentBrand.id,
+        amount: state.bostaMetrics.totalCOD,
+        type: 'in',
+        category: 'COD Collection',
+        description: `Bosta COD - ${state.bostaMetrics.deliveredCount} deliveries`,
+        date: new Date().toISOString().split('T')[0]
+      }]).select();
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      state.transactions.unshift(data[0]);
+      alert('✅ COD income transaction created successfully!');
+      
+      // Navigate to Cashflow page
+      state.currentPage = 'cashflow';
+      render();
+      
+    } catch (error) {
+      alert('Error creating transaction: ' + error.message);
+    }
+  };
+  
+  // ====== REVENUE RECONCILIATION (FAKE vs REAL) ======
+  
+  window.reconcileRevenue = async () => {
+    if (!state.currentBrand.shopify_connected || !state.currentBrand.bosta_connected) {
+      return alert('Please connect both Shopify and Bosta to reconcile revenue');
+    }
+    
+    state.reconciliationLoading = true;
+    render();
+    
+    try {
+      const { from, to } = state.reconciliationDateRange;
+      const shopifyApiKey = state.currentBrand.shopify_api_key;
+      const shopifyStoreUrl = state.currentBrand.shopify_store_url;
+      const bostaApiKey = state.currentBrand.bosta_api_key;
+      
+      // Calculate timestamps for Shopify API
+      const fromDate = new Date(from);
+      fromDate.setHours(0, 0, 0, 0);
+      const toDate = new Date(to);
+      toDate.setHours(23, 59, 59, 999);
+      
+      // Fetch Shopify orders for date range
+      const shopifyUrl = `/api/shopify?storeUrl=${encodeURIComponent(shopifyStoreUrl)}&accessToken=${encodeURIComponent(shopifyApiKey)}&type=orders`;
+      const shopifyResponse = await fetch(shopifyUrl);
+      
+      if (!shopifyResponse.ok) {
+        throw new Error('Failed to fetch Shopify orders');
+      }
+      
+      const shopifyData = await shopifyResponse.json();
+      let shopifyOrders = shopifyData.orders || [];
+      
+      // Filter by date range
+      shopifyOrders = shopifyOrders.filter(order => {
+        const orderDate = new Date(order.created_at);
+        return orderDate >= fromDate && orderDate <= toDate;
+      });
+      
+      // Calculate Shopify metrics (FAKE REVENUE)
+      const totalShopifyOrders = shopifyOrders.length;
+      const totalShopifyRevenue = shopifyOrders.reduce((sum, order) => {
+        return sum + parseFloat(order.total_price || 0);
+      }, 0);
+      
+      // Fetch Bosta analytics (aggregate data only - much simpler!)
+      const bostaUrl = `/api/bosta-analytics`;
+      const bostaResponse = await fetch(bostaUrl);
+      
+      if (!bostaResponse.ok) {
+        const errorData = await bostaResponse.json().catch(() => null);
+        console.error('Bosta API Error:', errorData);
+        throw new Error(errorData?.error || 'Failed to fetch Bosta analytics');
+      }
+      
+      const bostaResult = await bostaResponse.json();
+      
+      if (!bostaResult.success) {
+        console.error('Bosta Error:', bostaResult);
+        throw new Error(bostaResult.error || 'Bosta API returned error');
+      }
+      
+      // Get analytics data (no forEach needed - it's already totals!)
+      const analytics = bostaResult.analytics || {};
+      
+      console.log('📊 Bosta Analytics:', analytics);
+      
+      // Extract metrics directly from analytics
+      const delivered = analytics.successfulOrders || 0;
+      const pending = analytics.pickupRequested || 0;
+      const inTransit = analytics.inTransit || 0;
+      const codCollected = analytics.collectedCOD || 0;
+      const expectedCOD = analytics.expectedCOD || 0;
+      const totalShipped = analytics.pickupRequested + analytics.completed || 0;
+      
+      // Calculate derived metrics
+      const failed = 0; // Not provided in analytics
+      const returned = analytics.outForReturn || 0;
+      const codRejected = expectedCOD - codCollected;
+      
+      // Estimate Bosta fees (typically 15-25 EGP per delivery + 2% of COD)
+      const avgDeliveryFee = 20; // EGP per delivery
+      const codFeePercentage = 0.02; // 2%
+      const estimatedBostaFees = (delivered * avgDeliveryFee) + (codCollected * codFeePercentage);
+      
+      // Calculate final metrics
+      const deliverySuccessRate = totalShipped > 0 ? (delivered / totalShipped * 100) : 0;
+      const collectionRate = totalShopifyRevenue > 0 ? (codCollected / totalShopifyRevenue * 100) : 0;
+      const codRejectionRate = (delivered + returned) > 0 ? (returned / (delivered + returned) * 100) : 0;
+      const realRevenue = codCollected - estimatedBostaFees;
+      const revenueLeakage = totalShopifyRevenue > 0 ? ((totalShopifyRevenue - realRevenue) / totalShopifyRevenue * 100) : 0;
+      
+      // Store reconciliation results
+      state.revenueReconciliation = {
+        dateRange: { from, to },
+        shopify: {
+          ordersPlaced: totalShopifyOrders,
+          expectedRevenue: totalShopifyRevenue
+        },
+        bosta: {
+          ordersShipped: totalShipped,
+          delivered,
+          failed,
+          pending,
+          returned,
+          codCollected,
+          codRejected,
+          estimatedFees: estimatedBostaFees
+        },
+        metrics: {
+          deliverySuccessRate,
+          collectionRate,
+          codRejectionRate,
+          revenueLeakage
+        },
+        realRevenue,
+        gap: totalShopifyRevenue - realRevenue
+      };
+      
+      state.reconciliationLoading = false;
+      render();
+      
+    } catch (error) {
+      state.reconciliationLoading = false;
+      alert(`Error reconciling revenue: ${error.message}`);
+      render();
+    }
+  };
+  
+  window.setQuickDateRange = (type) => {
+    const today = new Date();
+    let from, to;
+    
+    switch(type) {
+      case 'today':
+        from = to = today.toISOString().split('T')[0];
+        break;
+      case 'yesterday':
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        from = to = yesterday.toISOString().split('T')[0];
+        break;
+      case 'last7days':
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        from = sevenDaysAgo.toISOString().split('T')[0];
+        to = today.toISOString().split('T')[0];
+        break;
+      case 'last30days':
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        from = thirtyDaysAgo.toISOString().split('T')[0];
+        to = today.toISOString().split('T')[0];
+        break;
+      case 'thismonth':
+        from = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+        to = today.toISOString().split('T')[0];
+        break;
+      case 'lastmonth':
+        const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        from = lastMonth.toISOString().split('T')[0];
+        to = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split('T')[0];
+        break;
+    }
+    
+    state.reconciliationDateRange = { from, to };
+    render();
+  };
+  
+  // ====== SHOPIFY API INTEGRATION ======
+  
+  window.syncShopifyInventory = async () => {
+    if (!state.currentBrand.shopify_connected) {
+      return alert('Please connect Shopify first in Settings');
+    }
+    
+    state.shopifyLoading = true;
+    render();
+    
+    try {
+      const storeUrl = state.currentBrand.shopify_store_url;
+      const accessToken = state.currentBrand.shopify_api_key;
+      
+      // Fetch products
+      const productsUrl = `/api/shopify?storeUrl=${encodeURIComponent(storeUrl)}&accessToken=${encodeURIComponent(accessToken)}`;
+      const productsResponse = await fetch(productsUrl);
+      
+      if (!productsResponse.ok) {
+        const errorData = await productsResponse.json();
+        throw new Error(errorData.message || `API error: ${productsResponse.status}`);
+      }
+      
+      const productsData = await productsResponse.json();
+      
+      // Fetch orders from last 7 days
+      const ordersUrl = `/api/shopify?storeUrl=${encodeURIComponent(storeUrl)}&accessToken=${encodeURIComponent(accessToken)}&type=orders`;
+      const ordersResponse = await fetch(ordersUrl);
+      
+      let ordersSales = {};
+      if (ordersResponse.ok) {
+        const ordersData = await ordersResponse.json();
+        
+        // Calculate units sold per variant in last 7 days
+        ordersData.orders.forEach(order => {
+          order.line_items.forEach(item => {
+            const variantId = item.variant_id;
+            if (!ordersSales[variantId]) {
+              ordersSales[variantId] = 0;
+            }
+            ordersSales[variantId] += item.quantity;
+          });
+        });
+      }
+      
+      // Process products with sell-through data
+      const products = [];
+      productsData.products.forEach(product => {
+        product.variants.forEach(variant => {
+          const currentStock = variant.inventory_quantity || 0;
+          const soldLast7Days = ordersSales[variant.id] || 0;
+          const startingStock = currentStock + soldLast7Days;
+          
+          // Calculate sell-through rate (% sold from starting inventory)
+          const sellThroughRate = startingStock > 0 ? (soldLast7Days / startingStock) * 100 : 0;
+          
+          // Calculate daily sales rate
+          const dailySalesRate = soldLast7Days / 7;
+          
+          // Calculate days until stockout (if selling at current rate)
+          const daysUntilStockout = dailySalesRate > 0 ? currentStock / dailySalesRate : Infinity;
+          
+          products.push({
+            id: variant.id,
+            title: variant.title === 'Default Title' ? product.title : `${product.title} - ${variant.title}`,
+            sku: variant.sku || 'N/A',
+            price: parseFloat(variant.price || 0),
+            inventory: currentStock,
+            value: parseFloat(variant.price || 0) * currentStock,
+            image: product.image ? product.image.src : null,
+            soldLast7Days: soldLast7Days,
+            sellThroughRate: sellThroughRate,
+            dailySalesRate: dailySalesRate,
+            daysUntilStockout: daysUntilStockout
+          });
+        });
+      });
+      
+      state.shopifyProducts = products;
+      state.shopifyLoading = false;
+      alert(`✅ Synced ${products.length} products with 7-day sales analytics!`);
+      render();
+      
+    } catch (error) {
+      state.shopifyLoading = false;
+      alert(`Error syncing Shopify: ${error.message}\n\nMake sure:\n1. Store URL is correct (e.g., store.myshopify.com)\n2. API key has read_products and read_orders permissions\n3. API key is valid`);
+      render();
+    }
+  };
+
+  document.addEventListener('change', (e) => {
+    if (e.target.id === 'modalType') {
+      updateCategoryDropdown('modalCategory', e.target.value);
+    }
+    if (e.target.id === 'editModalType') {
+      updateCategoryDropdown('editModalCategory', e.target.value);
+    }
+  });
+
+  function calculateBalance(transactions, upToIndex) {
+    let balance = 0;
+    for (let i = 0; i <= upToIndex; i++) {
+      const t = transactions[i];
+      if (t.type === 'in') balance += parseFloat(t.amount);
+      else balance -= parseFloat(t.amount);
+    }
+    return balance;
+  }
+
+  function getFilteredTransactions() {
+    const sortedTx = [...state.transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    let dateFilteredTx = sortedTx;
+    const now = new Date();
+    if (state.dateFilter === '7days') {
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      dateFilteredTx = sortedTx.filter(t => new Date(t.date) >= sevenDaysAgo);
+    } else if (state.dateFilter === '14days') {
+      const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+      dateFilteredTx = sortedTx.filter(t => new Date(t.date) >= fourteenDaysAgo);
+    } else if (state.dateFilter === '30days') {
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      dateFilteredTx = sortedTx.filter(t => new Date(t.date) >= thirtyDaysAgo);
+    }
+    
+    return dateFilteredTx.filter(t => 
+      t.reason.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+      (t.category && t.category.toLowerCase().includes(state.searchQuery.toLowerCase()))
+    );
+  }
+
+  function render() {
+    const app = document.getElementById('app');
+    
+    if (!state.currentBrand) {
+      app.innerHTML = `
+        <div class="login-container">
+          <div class="login-card">
+            <h1 class="login-title">Spectre-HQ</h1>
+            <p class="login-subtitle">☁️ Financial OS</p>
+            
+            <div style="display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border);">
+              <button id="loginTab" class="auth-tab active" style="flex: 1; background: transparent; border: none; border-bottom: 2px solid var(--accent); padding: 12px; color: var(--text-primary); font-weight: 600; cursor: pointer;">Login</button>
+              <button id="signupTab" class="auth-tab" style="flex: 1; background: transparent; border: none; border-bottom: 2px solid transparent; padding: 12px; color: var(--text-secondary); font-weight: 600; cursor: pointer;">Sign Up</button>
+            </div>
+            
+            <div id="loginForm">
+              <div class="form-group">
+                <input type="email" id="loginEmail" placeholder="Email" />
+              </div>
+              <div class="form-group">
+                <input type="password" id="loginPassword" placeholder="Password" />
+              </div>
+              <button id="loginBtn" class="w-full">Login</button>
+            </div>
+            
+            <div id="signupForm" style="display: none;">
+              <div class="form-group">
+                <input type="text" id="signupBrandName" placeholder="Brand Name (e.g., RedBox)" />
+              </div>
+              <div class="form-group">
+                <input type="email" id="signupEmail" placeholder="Email" />
+              </div>
+              <div class="form-group">
+                <input type="password" id="signupPassword" placeholder="Password" />
+              </div>
+              <button id="signupBtn" class="w-full">Create Account</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('loginTab').onclick = () => {
+        document.getElementById('loginTab').classList.add('active');
+        document.getElementById('signupTab').classList.remove('active');
+        document.getElementById('loginTab').style.borderBottom = '2px solid var(--accent)';
+        document.getElementById('signupTab').style.borderBottom = '2px solid transparent';
+        document.getElementById('loginTab').style.color = 'var(--text-primary)';
+        document.getElementById('signupTab').style.color = 'var(--text-secondary)';
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('signupForm').style.display = 'none';
+      };
+      
+      document.getElementById('signupTab').onclick = () => {
+        document.getElementById('signupTab').classList.add('active');
+        document.getElementById('loginTab').classList.remove('active');
+        document.getElementById('signupTab').style.borderBottom = '2px solid var(--accent)';
+        document.getElementById('loginTab').style.borderBottom = '2px solid transparent';
+        document.getElementById('signupTab').style.color = 'var(--text-primary)';
+        document.getElementById('loginTab').style.color = 'var(--text-secondary)';
+        document.getElementById('signupForm').style.display = 'block';
+        document.getElementById('loginForm').style.display = 'none';
+      };
+      
+      document.getElementById('loginBtn').onclick = handleLogin;
+      document.getElementById('signupBtn').onclick = handleSignup;
+      return;
+    }
+
+    const totalIn = state.transactions.filter(t => t.type === 'in').reduce((s, t) => s + parseFloat(t.amount), 0);
+    const totalOut = state.transactions.filter(t => t.type === 'out').reduce((s, t) => s + parseFloat(t.amount), 0);
+    const masterWallet = totalIn - totalOut;
+
+    app.innerHTML = `
+      <div style="display: flex;">
+        <div class="sidebar">
+          <div class="brand-header">
+            <div class="brand-avatar">${state.currentBrand.brand_name[0].toUpperCase()}</div>
+            <div class="brand-name">${state.currentBrand.brand_name}</div>
+            <div class="brand-email">${state.currentBrand.email}</div>
+            <div class="brand-tag">${state.currentBrand.brand_name}</div>
+          </div>
+          <div style="flex: 1;">
+            ${pages.map(p => {
+              const pid = p.toLowerCase().replace(/ /g, '-');
+              return `<button class="nav-btn ${state.currentPage === pid ? 'active' : ''}" data-page="${pid}">${p}</button>`;
+            }).join('')}
+          </div>
+          <button id="logoutBtn" class="secondary w-full" style="margin-top: 20px;">Sign out</button>
+        </div>
+        
+        <div class="main-content">${renderPage()}</div>
+      </div>
+    `;
+    
+    attachListeners();
+  }
+
+  function renderPage() {
+    const filteredTx = getFilteredTransactions();
+    const totalIn = state.transactions.filter(t => t.type === 'in').reduce((s, t) => s + parseFloat(t.amount), 0);
+    const totalOut = state.transactions.filter(t => t.type === 'out').reduce((s, t) => s + parseFloat(t.amount), 0);
+    const masterWallet = totalIn - totalOut;
+
+    switch(state.currentPage) {
+      case 'home':
+        return `
+          <div class="page-header">
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Overview of your financial activity.</p>
+          </div>
+          
+          <div class="grid grid-3 mb-4">
+            <div class="card accent-border stat-card">
+              <div class="stat-label">Money In</div>
+              <div class="stat-value green">${fmt(totalIn)}</div>
+            </div>
+            <div class="card accent-border stat-card">
+              <div class="stat-label">Money Out</div>
+              <div class="stat-value red">${fmt(totalOut)}</div>
+            </div>
+            <div class="card accent-border stat-card">
+              <div class="stat-label">Net</div>
+              <div class="stat-value green">${fmt(masterWallet)}</div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">Year to Date</div>
+            <div class="grid grid-2">
+              <div class="stat-card">
+                <div class="stat-label">Total In</div>
+                <div class="stat-value green">${fmt(totalIn)}</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Total Out</div>
+                <div class="stat-value red">${fmt(totalOut)}</div>
+              </div>
+            </div>
+            <div class="quick-actions">
+              <button class="quick-action-btn" data-page="cashflow">→ Cashflow</button>
+              <button class="quick-action-btn" data-page="bosta-orders">→ Bosta Orders</button>
+              <button class="quick-action-btn" data-page="analytics">→ Analytics</button>
+            </div>
+          </div>
+        `;
+      
+      case 'cashflow':
+        return `
+          <div class="page-header">
+            <h1 class="page-title">Cashflow</h1>
+            <p class="page-subtitle">Track your daily money in and money out.</p>
+          </div>
+          
+          <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: center;">
+            <select style="width: 150px;">
+              <option>${state.currentMonth}</option>
+            </select>
+            <button class="secondary small">Add Month</button>
+            <button class="small" onclick="openModal('addEntryModal')">+ New Entry</button>
+            <button class="secondary small" onclick="exportToExcel()">📤 Export Excel</button>
+            <div style="margin-left: auto;">
+              <label style="color: var(--text-secondary); font-size: 13px;">
+                <input type="checkbox" /> Check Bosta Payouts
+              </label>
+            </div>
+          </div>
+          
+          <div class="filter-tabs">
+            <button class="filter-tab ${state.dateFilter === 'all' ? 'active' : ''}" onclick="setDateFilter('all')">All</button>
+            <button class="filter-tab ${state.dateFilter === '7days' ? 'active' : ''}" onclick="setDateFilter('7days')">Last 7 days</button>
+            <button class="filter-tab ${state.dateFilter === '14days' ? 'active' : ''}" onclick="setDateFilter('14days')">Last 14 days</button>
+            <button class="filter-tab ${state.dateFilter === '30days' ? 'active' : ''}" onclick="setDateFilter('30days')">Last 30 days</button>
+          </div>
+          
+          <div class="grid grid-4 mb-4">
+            <div class="card accent-border stat-card">
+              <div class="stat-label">Total In</div>
+              <div class="stat-value green">${fmt(totalIn)}</div>
+            </div>
+            <div class="card accent-border stat-card">
+              <div class="stat-label">Total Out</div>
+              <div class="stat-value red">${fmt(totalOut)}</div>
+            </div>
+            <div class="card accent-border stat-card">
+              <div class="stat-label">Net</div>
+              <div class="stat-value green">${fmt(masterWallet)}</div>
+            </div>
+            <div class="card master-wallet stat-card">
+              <div class="stat-label">Master Wallet</div>
+              <div class="stat-value">${fmt(masterWallet)}</div>
+              <a href="#" class="view-history">View history →</a>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">Cashflow Table</div>
+            <div class="search-box">
+              <input type="text" placeholder="Search by category or notes..." id="searchInput" value="${state.searchQuery}" />
+            </div>
+            ${filteredTx.length === 0 ? '<div class="empty-state">No transactions found</div>' : `
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Money In</th>
+                    <th>Money Out</th>
+                    <th>Reason</th>
+                    <th>Balance</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${filteredTx.map((t, i) => {
+                    const balance = calculateBalance(filteredTx, i);
+                    return `
+                      <tr>
+                        <td>${new Date(t.date).toLocaleDateString('en-GB', {day: '2-digit', month: '2-digit'})}</td>
+                        <td style="color: var(--text-secondary); font-size: 12px;">${t.category || '-'}</td>
+                        <td style="color: var(--green); font-weight: 500;">${t.type === 'in' ? fmt(t.amount) : ''}</td>
+                        <td style="color: var(--red); font-weight: 500;">${t.type === 'out' ? fmt(t.amount) : ''}</td>
+                        <td>${t.reason}</td>
+                        <td style="color: var(--accent); font-weight: 600;">${fmt(balance)}</td>
+                        <td class="text-right">
+                          <button class="icon-btn" onclick="openEditModal('${t.id}')">✏️</button>
+                          <button class="danger delete-tx" data-id="${t.id}">×</button>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            `}
+          </div>
+        `;
+      
+      case 'analytics':
+        const recon = state.revenueReconciliation;
+        
+        return `
+          <div class="page-header">
+            <h1 class="page-title">Revenue Reconciliation</h1>
+            <p class="page-subtitle">Fake Revenue vs Real Revenue - The Egypt COD Reality Check</p>
+          </div>
+          
+          ${!state.currentBrand.shopify_connected || !state.currentBrand.bosta_connected ? `
+            <div style="background: #2a1a1a; border: 1px solid var(--red); border-radius: 8px; padding: 16px; margin-bottom: 20px; color: var(--red);">
+              ⚠️ Connect both Shopify and Bosta to reconcile revenue. <a href="#" style="color: var(--red); text-decoration: underline; font-weight: 600;" data-page="settings">Go to Settings</a>
+            </div>
+          ` : ''}
+          
+          <div class="card mb-4">
+            <div class="card-header">Select Date Range</div>
+            <div style="padding: 20px;">
+              <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+                <button class="secondary small" onclick="setQuickDateRange('today')">Today</button>
+                <button class="secondary small" onclick="setQuickDateRange('yesterday')">Yesterday</button>
+                <button class="secondary small" onclick="setQuickDateRange('last7days')">Last 7 Days</button>
+                <button class="secondary small" onclick="setQuickDateRange('last30days')">Last 30 Days</button>
+                <button class="secondary small" onclick="setQuickDateRange('thismonth')">This Month</button>
+                <button class="secondary small" onclick="setQuickDateRange('lastmonth')">Last Month</button>
+              </div>
+              
+              <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-secondary);">From:</label>
+                  <input type="date" value="${state.reconciliationDateRange.from}" 
+                         onchange="state.reconciliationDateRange.from = this.value; render();" 
+                         style="padding: 8px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; color: #fff;" />
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-secondary);">To:</label>
+                  <input type="date" value="${state.reconciliationDateRange.to}" 
+                         onchange="state.reconciliationDateRange.to = this.value; render();" 
+                         style="padding: 8px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; color: #fff;" />
+                </div>
+                <button onclick="reconcileRevenue()" ${state.reconciliationLoading ? 'disabled' : ''} style="margin-top: 20px;">
+                  ${state.reconciliationLoading ? '⏳ Calculating...' : '🔍 Calculate Revenue'}
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          ${recon ? `
+            <div class="grid grid-2 mb-4">
+              <div class="card" style="background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%); border: 2px solid #ff4444;">
+                <div style="padding: 24px;">
+                  <div style="font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 8px;">📦 FAKE REVENUE (Shopify)</div>
+                  <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 8px;">${fmt(recon.shopify.expectedRevenue)}</div>
+                  <div style="font-size: 13px; color: rgba(255,255,255,0.7);">${recon.shopify.ordersPlaced} orders placed</div>
+                </div>
+              </div>
+              
+              <div class="card" style="background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%); border: 2px solid #00ff88;">
+                <div style="padding: 24px;">
+                  <div style="font-size: 14px; color: rgba(0,0,0,0.7); margin-bottom: 8px;">✅ REAL REVENUE (After Fees)</div>
+                  <div style="font-size: 36px; font-weight: 700; color: #000; margin-bottom: 8px;">${fmt(recon.realRevenue)}</div>
+                  <div style="font-size: 13px; color: rgba(0,0,0,0.6);">${recon.bosta.delivered} delivered & collected</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card mb-4" style="border: 2px solid var(--red);">
+              <div style="padding: 24px; text-align: center;">
+                <div style="font-size: 16px; color: var(--text-secondary); margin-bottom: 8px;">💸 REVENUE LEAKAGE</div>
+                <div style="font-size: 48px; font-weight: 700; color: var(--red); margin-bottom: 8px;">${recon.metrics.revenueLeakage.toFixed(1)}%</div>
+                <div style="font-size: 18px; color: var(--red); font-weight: 600;">You lost ${fmt(recon.gap)}</div>
+              </div>
+            </div>
+            
+            <div class="grid grid-4 mb-4">
+              <div class="card accent-border stat-card">
+                <div class="stat-label">Orders Shipped</div>
+                <div class="stat-value">${recon.bosta.ordersShipped}</div>
+              </div>
+              <div class="card accent-border stat-card">
+                <div class="stat-label">Delivered</div>
+                <div class="stat-value green">${recon.bosta.delivered}</div>
+              </div>
+              <div class="card accent-border stat-card">
+                <div class="stat-label">Failed</div>
+                <div class="stat-value red">${recon.bosta.failed}</div>
+              </div>
+              <div class="card accent-border stat-card">
+                <div class="stat-label">Returned</div>
+                <div class="stat-value" style="color: #ff9800;">${recon.bosta.returned}</div>
+              </div>
+            </div>
+            
+            <div class="grid grid-3 mb-4">
+              <div class="card accent-border stat-card">
+                <div class="stat-label">Delivery Success Rate</div>
+                <div class="stat-value ${recon.metrics.deliverySuccessRate >= 80 ? 'green' : recon.metrics.deliverySuccessRate >= 60 ? '' : 'red'}">${recon.metrics.deliverySuccessRate.toFixed(1)}%</div>
+              </div>
+              <div class="card accent-border stat-card">
+                <div class="stat-label">Collection Rate</div>
+                <div class="stat-value ${recon.metrics.collectionRate >= 70 ? 'green' : recon.metrics.collectionRate >= 50 ? '' : 'red'}">${recon.metrics.collectionRate.toFixed(1)}%</div>
+              </div>
+              <div class="card accent-border stat-card">
+                <div class="stat-label">COD Rejection Rate</div>
+                <div class="stat-value ${recon.metrics.codRejectionRate <= 10 ? 'green' : recon.metrics.codRejectionRate <= 20 ? '' : 'red'}">${recon.metrics.codRejectionRate.toFixed(1)}%</div>
+              </div>
+            </div>
+            
+            <div class="card mb-4">
+              <div class="card-header">Revenue Breakdown</div>
+              <table>
+                <tbody>
+                  <tr>
+                    <td style="font-weight: 600;">Shopify Orders Placed</td>
+                    <td class="text-right">${recon.shopify.ordersPlaced} orders</td>
+                    <td class="text-right" style="font-weight: 600;">${fmt(recon.shopify.expectedRevenue)}</td>
+                  </tr>
+                  <tr style="border-top: 1px solid var(--border);">
+                    <td>Orders Shipped (Bosta)</td>
+                    <td class="text-right">${recon.bosta.ordersShipped} orders</td>
+                    <td class="text-right"></td>
+                  </tr>
+                  <tr>
+                    <td style="padding-left: 24px; color: var(--green);">✓ Delivered</td>
+                    <td class="text-right" style="color: var(--green);">${recon.bosta.delivered}</td>
+                    <td class="text-right" style="color: var(--green);">${fmt(recon.bosta.codCollected)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding-left: 24px; color: var(--red);">✗ Failed</td>
+                    <td class="text-right" style="color: var(--red);">${recon.bosta.failed}</td>
+                    <td class="text-right" style="color: var(--red);">-</td>
+                  </tr>
+                  <tr>
+                    <td style="padding-left: 24px; color: #ff9800;">↩ Returned</td>
+                    <td class="text-right" style="color: #ff9800;">${recon.bosta.returned}</td>
+                    <td class="text-right" style="color: #ff9800;">- ${fmt(recon.bosta.codRejected)}</td>
+                  </tr>
+                  <tr style="border-top: 1px solid var(--border);">
+                    <td style="font-weight: 600;">COD Collected</td>
+                    <td class="text-right"></td>
+                    <td class="text-right" style="font-weight: 600; color: var(--green);">${fmt(recon.bosta.codCollected)}</td>
+                  </tr>
+                  <tr>
+                    <td style="color: var(--red);">Bosta Fees (Estimated)</td>
+                    <td class="text-right" style="font-size: 11px; color: var(--text-secondary);">${recon.bosta.delivered} deliveries × EGP 20 + 2% COD</td>
+                    <td class="text-right" style="color: var(--red);">- ${fmt(recon.bosta.estimatedFees)}</td>
+                  </tr>
+                  <tr style="border-top: 2px solid var(--accent);">
+                    <td style="font-weight: 700; font-size: 16px;">REAL REVENUE</td>
+                    <td class="text-right"></td>
+                    <td class="text-right" style="font-weight: 700; font-size: 16px; color: var(--accent);">${fmt(recon.realRevenue)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="card">
+              <div class="card-header">What This Means</div>
+              <div style="padding: 20px;">
+                <div style="margin-bottom: 16px; padding: 16px; background: rgba(255,68,68,0.1); border-left: 4px solid var(--red); border-radius: 4px;">
+                  <div style="font-weight: 600; margin-bottom: 8px;">🚨 Revenue Leakage: ${recon.metrics.revenueLeakage.toFixed(1)}%</div>
+                  <div style="font-size: 14px; color: var(--text-secondary);">
+                    You're losing ${fmt(recon.gap)} between what Shopify says you made and what you actually collected.
+                    ${recon.metrics.revenueLeakage > 40 ? `This is VERY HIGH! Focus on improving delivery success and reducing COD rejections.` : 
+                      recon.metrics.revenueLeakage > 25 ? `This is normal for Egyptian e-commerce, but can be improved.` : 
+                      `This is excellent! You're running a tight ship.`}
+                  </div>
+                </div>
+                
+                <div style="margin-bottom: 16px; padding: 16px; background: rgba(0,255,136,0.1); border-left: 4px solid var(--green); border-radius: 4px;">
+                  <div style="font-weight: 600; margin-bottom: 8px;">✅ Delivery Success: ${recon.metrics.deliverySuccessRate.toFixed(1)}%</div>
+                  <div style="font-size: 14px; color: var(--text-secondary);">
+                    ${recon.bosta.delivered} out of ${recon.bosta.ordersShipped} orders were successfully delivered.
+                    ${recon.metrics.deliverySuccessRate >= 85 ? `Excellent delivery rate!` : 
+                      recon.metrics.deliverySuccessRate >= 70 ? `Good, but room for improvement.` : 
+                      `Low delivery rate - check your address quality and Bosta coverage.`}
+                  </div>
+                </div>
+                
+                <div style="padding: 16px; background: rgba(255,152,0,0.1); border-left: 4px solid #ff9800; border-radius: 4px;">
+                  <div style="font-weight: 600; margin-bottom: 8px;">💰 Collection Rate: ${recon.metrics.collectionRate.toFixed(1)}%</div>
+                  <div style="font-size: 14px; color: var(--text-secondary);">
+                    You collected ${fmt(recon.bosta.codCollected)} out of ${fmt(recon.shopify.expectedRevenue)} expected.
+                    ${recon.metrics.codRejectionRate > 15 ? `High COD rejection rate (${recon.metrics.codRejectionRate.toFixed(1)}%) - consider prepayment incentives.` : 
+                      recon.metrics.codRejectionRate > 5 ? `Normal COD rejection rate for Egypt.` : 
+                      `Very low rejection rate - great!`}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ` : `
+            <div class="card">
+              <div class="empty-state">
+                <div class="empty-state-icon">📊</div>
+                <div style="margin-top: 16px; font-size: 16px; color: var(--text-secondary);">
+                  Select a date range and click "Calculate Revenue" to see your fake vs real revenue analysis.
+                </div>
+              </div>
+            </div>
+          `}
+        `;
+      
+      case 'bosta-orders':
+        const bostaMetrics = state.bostaMetrics;
+        
+        return `
+          <div class="page-header">
+            <h1 class="page-title">Bosta Orders & COD Tracking</h1>
+            <p class="page-subtitle">Sync deliveries from Bosta API or upload reports manually.</p>
+          </div>
+          
+          ${!state.currentBrand.bosta_connected ? `
+            <div style="background: #2a1a1a; border: 1px solid var(--red); border-radius: 8px; padding: 16px; margin-bottom: 20px; color: var(--red);">
+              ⚠️ Bosta not connected. <a href="#" style="color: var(--red); text-decoration: underline; font-weight: 600;" data-page="settings">Go to Settings</a> to connect your Bosta API key.
+            </div>
+          ` : ''}
+          
+          ${state.currentBrand.bosta_connected ? `
+            <div class="grid grid-3 mb-4">
+              <div class="card accent-border stat-card">
+                <div class="stat-label">COD Collected (7d)</div>
+                <div class="stat-value green">${bostaMetrics ? fmt(bostaMetrics.totalCOD) : fmt(0)}</div>
+              </div>
+              <div class="card accent-border stat-card">
+                <div class="stat-label">Pending COD</div>
+                <div class="stat-value" style="color: #ff9800;">${bostaMetrics ? fmt(bostaMetrics.pendingCOD) : fmt(0)}</div>
+              </div>
+              <div class="card accent-border stat-card">
+                <div class="stat-label">Delivery Success Rate</div>
+                <div class="stat-value">${bostaMetrics ? bostaMetrics.successRate.toFixed(1) : '0'}%</div>
+              </div>
+            </div>
+            
+            <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: center; flex-wrap: wrap;">
+              <button onclick="syncBostaDeliveries()" ${state.bostaLoading ? 'disabled' : ''}>
+                ${state.bostaLoading ? '⏳ Syncing...' : '🔄 Sync from Bosta API'}
+              </button>
+              ${bostaMetrics ? `
+                <button onclick="autoCreateCODTransactions()" class="secondary">
+                  💰 Add COD to Cashflow
+                </button>
+              ` : ''}
+              <div style="color: var(--text-secondary); font-size: 13px;">
+                ${bostaMetrics ? `Last synced: ${new Date(bostaMetrics.lastSync).toLocaleString()}` : 'Not synced yet'}
+              </div>
+            </div>
+            
+            ${bostaMetrics && bostaMetrics.bySKU.length > 0 ? `
+              <div class="card mb-4">
+                <div class="card-header">Deliveries by Product (Last 7 Days)</div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>SKU</th>
+                      <th class="text-right">Delivered</th>
+                      <th class="text-right">Pending</th>
+                      <th class="text-right">Failed</th>
+                      <th class="text-right">COD Collected</th>
+                      <th class="text-right">COD Pending</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${bostaMetrics.bySKU.map(item => `
+                      <tr>
+                        <td>${item.name}</td>
+                        <td style="font-family: monospace; color: var(--text-secondary); font-size: 12px;">${item.sku}</td>
+                        <td class="text-right" style="color: var(--green); font-weight: 600;">${item.delivered}</td>
+                        <td class="text-right" style="color: #ff9800;">${item.pending}</td>
+                        <td class="text-right" style="color: var(--red);">${item.failed}</td>
+                        <td class="text-right" style="color: var(--green); font-weight: 600;">${fmt(item.codCollected)}</td>
+                        <td class="text-right" style="color: #ff9800;">${fmt(item.codPending)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            ` : ''}
+          ` : ''}
+          
+          <div class="card mb-4">
+            <div class="card-header">Upload Manual Report (Optional)</div>
+            <div class="upload-area" onclick="triggerBostaUpload()">
+              <input type="file" id="bostaFileInput" accept=".xlsx,.xls" style="display: none;" onchange="handleBostaUpload(event)" />
+              <div class="upload-icon">📊</div>
+              <div style="color: #fff; font-size: 16px; font-weight: 500; margin-bottom: 8px;">Click to choose or drag & drop</div>
+              <div style="color: #888; font-size: 14px;">Accepts .xlsx / .xls Bosta exports</div>
+              <p style="color: var(--text-secondary); font-size: 12px; margin-top: 16px;">The file should contain columns: SKU, Amount, Quantity</p>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">Report History (${state.bostaReports.length})</div>
+            ${state.bostaReports.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">📊</div>No reports saved yet. Upload one above.</div>' : `
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Filename</th>
+                    <th class="text-right">Orders</th>
+                    <th class="text-right">Revenue</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${state.bostaReports.map(r => `
+                    <tr>
+                      <td>${new Date(r.upload_date).toLocaleDateString()}</td>
+                      <td>${r.filename}</td>
+                      <td class="text-right">${r.total_orders}</td>
+                      <td class="text-right" style="color: var(--green); font-weight: 600;">${fmt(r.total_revenue)}</td>
+                      <td class="text-right">
+                        <button class="secondary small view-report" data-id="${r.id}">View</button>
+                        <button class="danger" onclick="deleteBostaReport('${r.id}')">×</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            `}
+          </div>
+        `;
+      
+      case 'stock-value':
+        const totalStockValue = state.shopifyProducts.reduce((sum, p) => sum + p.value, 0);
+        const totalItems = state.shopifyProducts.reduce((sum, p) => sum + p.inventory, 0);
+        
+        return `
+          <div class="page-header">
+            <h1 class="page-title">Stock Value</h1>
+            <p class="page-subtitle">Live inventory from Shopify — current stock value by product.</p>
+          </div>
+          
+          ${!state.currentBrand.shopify_connected ? `
+            <div style="background: #2a1a1a; border: 1px solid var(--red); border-radius: 8px; padding: 16px; margin-bottom: 20px; color: var(--red);">
+              ⚠️ Shopify not connected. <a href="#" style="color: var(--red); text-decoration: underline; font-weight: 600;" data-page="settings">Go to Settings</a> to connect your Shopify store.
+            </div>
+          ` : ''}
+          
+          ${state.currentBrand.shopify_connected ? `
+            <div class="grid grid-3 mb-4">
+              <div class="card accent-border stat-card">
+                <div class="stat-label">Total Products</div>
+                <div class="stat-value">${state.shopifyProducts.length}</div>
+              </div>
+              <div class="card accent-border stat-card">
+                <div class="stat-label">Total Items in Stock</div>
+                <div class="stat-value">${totalItems.toLocaleString()}</div>
+              </div>
+              <div class="card accent-border stat-card">
+                <div class="stat-label">Total Stock Value</div>
+                <div class="stat-value green">${fmt(totalStockValue)}</div>
+              </div>
+            </div>
+            
+            <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: center;">
+              <button onclick="syncShopifyInventory()" ${state.shopifyLoading ? 'disabled' : ''}>
+                ${state.shopifyLoading ? '⏳ Syncing...' : '🔄 Sync from Shopify'}
+              </button>
+              <div style="color: var(--text-secondary); font-size: 13px;">
+                Last synced: ${state.shopifyProducts.length > 0 ? 'Just now' : 'Never'}
+              </div>
+            </div>
+          ` : ''}
+          
+          <div class="card">
+            <div class="card-header">Inventory — ${state.currentBrand.shopify_connected ? 'Shopify' : 'Not Connected'}</div>
+            ${!state.currentBrand.shopify_connected ? 
+              '<div class="empty-state"><div class="empty-state-icon">🛍️</div>Connect Shopify to see your inventory</div>' :
+              state.shopifyProducts.length === 0 ?
+                '<div class="empty-state"><div class="empty-state-icon">📦</div>Click "Sync from Shopify" to load your products</div>' :
+                `
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th class="text-right">Price</th>
+                        <th class="text-right">In Stock</th>
+                        <th class="text-right">Sold (7d)</th>
+                        <th class="text-right">Sell-Through</th>
+                        <th class="text-right">Days Left</th>
+                        <th class="text-right">Total Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${state.shopifyProducts.map(p => {
+                        // Color code sell-through rate
+                        let sellThroughColor = 'var(--text-secondary)';
+                        if (p.sellThroughRate >= 70) sellThroughColor = 'var(--green)'; // High performance
+                        else if (p.sellThroughRate >= 40) sellThroughColor = 'var(--accent)'; // Medium
+                        else if (p.sellThroughRate > 0) sellThroughColor = '#ff9800'; // Low but selling
+                        
+                        // Color code days left
+                        let daysLeftColor = 'var(--text-secondary)';
+                        let daysLeftText = p.daysUntilStockout === Infinity ? '∞' : Math.floor(p.daysUntilStockout);
+                        if (p.daysUntilStockout < 7) daysLeftColor = 'var(--red)'; // Critical
+                        else if (p.daysUntilStockout < 30) daysLeftColor = '#ff9800'; // Warning
+                        else if (p.daysUntilStockout < Infinity) daysLeftColor = 'var(--green)'; // Good
+                        
+                        return `
+                        <tr>
+                          <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                              ${p.image ? `<img src="${p.image}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;" />` : ''}
+                              <div>${p.title}</div>
+                            </div>
+                          </td>
+                          <td style="font-family: monospace; color: var(--text-secondary); font-size: 12px;">${p.sku}</td>
+                          <td class="text-right">${fmt(p.price)}</td>
+                          <td class="text-right" style="color: ${p.inventory > 0 ? 'var(--green)' : 'var(--red)'}; font-weight: 600;">${p.inventory}</td>
+                          <td class="text-right" style="color: ${p.soldLast7Days > 0 ? 'var(--green)' : 'var(--text-secondary)'}; font-weight: 500;">${p.soldLast7Days}</td>
+                          <td class="text-right" style="color: ${sellThroughColor}; font-weight: 600;">${p.sellThroughRate.toFixed(1)}%</td>
+                          <td class="text-right" style="color: ${daysLeftColor}; font-weight: 600;">${daysLeftText}</td>
+                          <td class="text-right" style="color: var(--accent); font-weight: 600;">${fmt(p.value)}</td>
+                        </tr>
+                        `;
+                      }).join('')}
+                    </tbody>
+                  </table>
+                `
+            }
+          </div>
+        `;
+      
+      case 'products':
+        return `
+          <div class="page-header">
+            <h1 class="page-title">Products</h1>
+            <p class="page-subtitle">Maintain your SKU name list for reports.</p>
+          </div>
+          
+          <div class="card mb-4">
+            <div class="card-header">Add / Update Product</div>
+            <div class="form-row" style="grid-template-columns: 1fr 1fr auto;">
+              <input type="text" id="pSku" placeholder="SKU (e.g. BO-2159519)" />
+              <input type="text" id="pName" placeholder="Product name" />
+              <button id="addProductBtn">Add</button>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">Stored Products (${state.products.length})</div>
+            ${state.products.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">📦</div>No products yet.</div>' : 
+              state.products.map(p => `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-input); padding: 16px 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px;">
+                  <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="font-family: monospace; color: var(--text-secondary); background: var(--bg-card); padding: 4px 12px; border-radius: 6px; font-size: 13px;">${p.sku}</div>
+                    <div>${p.name}</div>
+                  </div>
+                  <button class="danger delete-product" data-id="${p.id}">×</button>
+                </div>
+              `).join('')
+            }
+          </div>
+        `;
+      
+      case 'categories':
+        return `
+          <div class="page-header">
+            <h1 class="page-title">Categories</h1>
+            <p class="page-subtitle">Manage money in and money out categories for your brand.</p>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">Cashflow Categories</div>
+            <p style="color: var(--text-secondary); margin-bottom: 24px; font-size: 14px;">Define the categories available when logging cashflow entries. Each brand has its own lists.</p>
+            
+            <div class="grid grid-2">
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                  <div style="width: 8px; height: 8px; background: var(--green); border-radius: 50%;"></div>
+                  <div style="font-size: 13px; font-weight: 600; text-transform: uppercase;">Money In</div>
+                  <div style="margin-left: auto; color: var(--text-secondary); font-size: 12px;">${state.categories.in.length} categories</div>
+                </div>
+                ${state.categories.in.map(cat => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-input); padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;">
+                    <div>${cat}</div>
+                    <button class="danger delete-cat-in" data-name="${cat}">×</button>
+                  </div>
+                `).join('')}
+                <div class="form-row">
+                  <input type="text" id="catInInput" placeholder="Add money in category..." />
+                  <button id="addCatInBtn">Add</button>
+                </div>
+              </div>
+              
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                  <div style="width: 8px; height: 8px; background: var(--red); border-radius: 50%;"></div>
+                  <div style="font-size: 13px; font-weight: 600; text-transform: uppercase;">Money Out</div>
+                  <div style="margin-left: auto; color: var(--text-secondary); font-size: 12px;">${state.categories.out.length} categories</div>
+                </div>
+                ${state.categories.out.map(cat => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-input); padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;">
+                    <div>${cat}</div>
+                    <button class="danger delete-cat-out" data-name="${cat}">×</button>
+                  </div>
+                `).join('')}
+                <div class="form-row">
+                  <input type="text" id="catOutInput" placeholder="Add money out category..." />
+                  <button id="addCatOutBtn">Add</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      
+      case 'bi-assistant':
+        return `
+          <div class="page-header">
+            <h1 class="page-title">BI Assistant</h1>
+            <p class="page-subtitle">Get AI-powered business insights</p>
+          </div>
+          
+          <div class="card">
+            <div class="empty-state">
+              <div class="empty-state-icon">🤖</div>
+              This feature is under construction
+            </div>
+          </div>
+        `;
+      
+      case 'to-do':
+        const people = ['Unassigned', 'Eyad', 'Jimmy', 'Ahmed Adel'];
+        return `
+          <div class="page-header">
+            <h1 class="page-title">To Do</h1>
+            <p class="page-subtitle">Kanban board — tasks and activities by person.</p>
+          </div>
+          
+          <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <button>≡ Kanban</button>
+            <button class="secondary">📋 Activity</button>
+            <div style="flex: 1;"></div>
+            <button class="secondary">⚙ Activities</button>
+          </div>
+          
+          <div class="card mb-4">
+            <div class="form-row" style="grid-template-columns: 1fr auto auto;">
+              <input type="text" id="taskTitle" placeholder="Task title" />
+              <select id="taskAssignee" style="width: 150px;">
+                ${people.map(p => `<option value="${p}">${p}</option>`).join('')}
+              </select>
+              <button id="addTaskBtn">+ Add task</button>
+            </div>
+          </div>
+          
+          <div class="grid grid-4">
+            ${people.map(person => `
+              <div class="card">
+                <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">${person}</div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">${state.tasks.filter(t => t.assignee === person).length} task${state.tasks.filter(t => t.assignee === person).length !== 1 ? 's' : ''}</div>
+                ${state.tasks.filter(t => t.assignee === person).map(task => `
+                  <div style="background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; position: relative;">
+                    <div style="padding-right: 24px;">${task.title}</div>
+                    <button style="position: absolute; top: 8px; right: 8px; background: transparent; color: var(--text-secondary); border: none; cursor: pointer; font-size: 16px; padding: 0; width: 20px; height: 20px;" class="delete-task" data-id="${task.id}">×</button>
+                  </div>
+                `).join('')}
+                ${state.tasks.filter(t => t.assignee === person).length === 0 ? '<div style="color: var(--text-secondary); font-size: 13px; font-style: italic;">drag here</div>' : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      
+      case 'settings':
+        return `
+          <div class="page-header">
+            <h1 class="page-title">Settings</h1>
+            <p class="page-subtitle">Manage your account and integrations.</p>
+          </div>
+          
+          <div class="card mb-4">
+            <div class="settings-section">
+              <div class="settings-section-title">Account Information</div>
+              <div class="settings-item">
+                <div>
+                  <div class="settings-item-label">Brand Name</div>
+                  <div class="settings-item-value">${state.currentBrand.brand_name}</div>
+                </div>
+                <button class="secondary small">Edit</button>
+              </div>
+              <div class="settings-item">
+                <div>
+                  <div class="settings-item-label">Email</div>
+                  <div class="settings-item-value">${state.currentBrand.email}</div>
+                </div>
+                <button class="secondary small">Change</button>
+              </div>
+              <div class="settings-item">
+                <div>
+                  <div class="settings-item-label">Password</div>
+                  <div class="settings-item-value">••••••••</div>
+                </div>
+                <button class="secondary small">Change</button>
+              </div>
+            </div>
+            
+            <div class="settings-section">
+              <div class="settings-section-title">Integrations</div>
+              <div class="settings-item">
+                <div>
+                  <div class="settings-item-label">Bosta API</div>
+                  <div class="settings-item-value">
+                    ${state.currentBrand.bosta_connected ? 
+                      '<span class="status-badge connected">✓ Connected</span>' : 
+                      '<span class="status-badge disconnected">Not connected</span>'}
+                  </div>
+                </div>
+                <button class="${state.currentBrand.bosta_connected ? 'secondary' : ''} small" onclick="openModal('bostaConnectModal')">
+                  ${state.currentBrand.bosta_connected ? 'Reconnect' : 'Connect'}
+                </button>
+              </div>
+              <div class="settings-item">
+                <div>
+                  <div class="settings-item-label">Shopify</div>
+                  <div class="settings-item-value">
+                    ${state.currentBrand.shopify_connected ? 
+                      '<span class="status-badge connected">✓ Connected</span>' : 
+                      '<span class="status-badge disconnected">Not connected</span>'}
+                  </div>
+                </div>
+                <button class="${state.currentBrand.shopify_connected ? 'secondary' : ''} small" onclick="openModal('shopifyConnectModal')">
+                  ${state.currentBrand.shopify_connected ? 'Reconnect' : 'Connect'}
+                </button>
+              </div>
+            </div>
+            
+            <div class="settings-section">
+              <div class="settings-section-title">Data Management</div>
+              <div class="settings-item">
+                <div>
+                  <div class="settings-item-label">Export All Data</div>
+                  <div class="settings-item-value">Download all your data as Excel files</div>
+                </div>
+                <button class="secondary small">Export</button>
+              </div>
+              <div class="settings-item">
+                <div>
+                  <div class="settings-item-label">Delete Account</div>
+                  <div class="settings-item-value" style="color: var(--red);">Permanently delete your account and all data</div>
+                </div>
+                <button class="danger small">Delete</button>
+              </div>
+            </div>
+          </div>
+        `;
+      
+      default:
+        return '<div class="empty-state">Page not found</div>';
+    }
+  }
+
+  function attachListeners() {
+    document.getElementById('logoutBtn').onclick = () => {
+      localStorage.removeItem('spectre_brand');
+      state = { currentBrand: null, currentPage: 'home', transactions: [], products: [], categories: { in: [], out: [] }, tasks: [], searchQuery: '', currentMonth: new Date().toISOString().slice(0, 7), dateFilter: 'all', editingTransaction: null };
+      render();
+    };
+    
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.onclick = () => { state.currentPage = btn.dataset.page; render(); };
+    });
+    
+    document.querySelectorAll('[data-page]').forEach(el => {
+      el.onclick = (e) => { 
+        e.preventDefault(); 
+        state.currentPage = el.dataset.page; 
+        render(); 
+      };
+    });
+
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      searchInput.oninput = (e) => {
+        state.searchQuery = e.target.value;
+        render();
+      };
+    }
+    
+    document.querySelectorAll('.delete-tx').forEach(btn => {
+      btn.onclick = async () => {
+        if (!confirm('Delete this transaction?')) return;
+        await db.from('transactions').delete().eq('id', btn.dataset.id);
+        state.transactions = state.transactions.filter(t => t.id !== btn.dataset.id);
+        render();
+      };
+    });
+    
+    const addProductBtn = document.getElementById('addProductBtn');
+    if (addProductBtn) addProductBtn.onclick = async () => {
+      const sku = document.getElementById('pSku').value;
+      const name = document.getElementById('pName').value;
+      if (!sku || !name) return alert('Fill all fields');
+      const { data } = await db.from('products').insert([{ brand_id: state.currentBrand.id, sku, name }]).select();
+      if (data) { 
+        state.products.push(data[0]); 
+        document.getElementById('pSku').value = '';
+        document.getElementById('pName').value = '';
+        render(); 
+      }
+    };
+    
+    document.querySelectorAll('.delete-product').forEach(btn => {
+      btn.onclick = async () => {
+        await db.from('products').delete().eq('id', btn.dataset.id);
+        state.products = state.products.filter(p => p.id !== btn.dataset.id);
+        render();
+      };
+    });
+    
+    const addCatInBtn = document.getElementById('addCatInBtn');
+    if (addCatInBtn) addCatInBtn.onclick = async () => {
+      const name = document.getElementById('catInInput').value;
+      if (!name) return alert('Enter category name');
+      const { data } = await db.from('categories').insert([{ brand_id: state.currentBrand.id, name, type: 'in' }]).select();
+      if (data) { state.categories.in.push(name); document.getElementById('catInInput').value = ''; render(); }
+    };
+    
+    const addCatOutBtn = document.getElementById('addCatOutBtn');
+    if (addCatOutBtn) addCatOutBtn.onclick = async () => {
+      const name = document.getElementById('catOutInput').value;
+      if (!name) return alert('Enter category name');
+      const { data } = await db.from('categories').insert([{ brand_id: state.currentBrand.id, name, type: 'out' }]).select();
+      if (data) { state.categories.out.push(name); document.getElementById('catOutInput').value = ''; render(); }
+    };
+    
+    document.querySelectorAll('.delete-cat-in').forEach(btn => {
+      btn.onclick = async () => {
+        await db.from('categories').delete().eq('brand_id', state.currentBrand.id).eq('name', btn.dataset.name).eq('type', 'in');
+        state.categories.in = state.categories.in.filter(c => c !== btn.dataset.name);
+        render();
+      };
+    });
+    
+    document.querySelectorAll('.delete-cat-out').forEach(btn => {
+      btn.onclick = async () => {
+        await db.from('categories').delete().eq('brand_id', state.currentBrand.id).eq('name', btn.dataset.name).eq('type', 'out');
+        state.categories.out = state.categories.out.filter(c => c !== btn.dataset.name);
+        render();
+      };
+    });
+    
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    if (addTaskBtn) addTaskBtn.onclick = async () => {
+      const title = document.getElementById('taskTitle').value;
+      const assignee = document.getElementById('taskAssignee').value;
+      if (!title) return alert('Enter task title');
+      const { data } = await db.from('tasks').insert([{ brand_id: state.currentBrand.id, title, assignee }]).select();
+      if (data) { state.tasks.push(data[0]); document.getElementById('taskTitle').value = ''; render(); }
+    };
+    
+    document.querySelectorAll('.delete-task').forEach(btn => {
+      btn.onclick = async () => {
+        await db.from('tasks').delete().eq('id', btn.dataset.id);
+        state.tasks = state.tasks.filter(t => t.id !== btn.dataset.id);
+        render();
+      };
+    });
+  }
+
+  async function handleLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) return alert('Fill all fields');
+    
+    const { data: existing } = await db.from('brands').select('*').eq('email', email);
+    if (!existing || existing.length === 0) {
+      return alert('Account not found. Please sign up first.');
+    }
+    
+    if (existing[0].password !== password) {
+      return alert('Incorrect password. Please try again.');
+    }
+    
+    state.currentBrand = existing[0];
+    localStorage.setItem('spectre_brand', JSON.stringify(state.currentBrand));
+    await loadBrandData();
+    render();
+  }
+
+  async function handleSignup() {
+    const brandName = document.getElementById('signupBrandName').value;
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    if (!brandName || !email || !password) return alert('Fill all fields');
+    
+    if (password.length < 6) {
+      return alert('Password must be at least 6 characters long.');
+    }
+    
+    const { data: existing } = await db.from('brands').select('*').eq('email', email);
+    if (existing && existing.length > 0) {
+      return alert('Account already exists. Please login instead.');
+    }
+    
+    const { data, error } = await db.from('brands').insert([{ 
+      brand_name: brandName, 
+      email,
+      password
+    }]).select();
+    
+    if (error) {
+      return alert('Error creating account: ' + error.message);
+    }
+    
+    if (data) {
+      state.currentBrand = data[0];
+      localStorage.setItem('spectre_brand', JSON.stringify(state.currentBrand));
+      await loadBrandData();
+      render();
+    }
+  }
+
+  async function loadBrandData() {
+    const [txRes, prodRes, catRes, taskRes, bostaRes] = await Promise.all([
+      db.from('transactions').select('*').eq('brand_id', state.currentBrand.id),
+      db.from('products').select('*').eq('brand_id', state.currentBrand.id),
+      db.from('categories').select('*').eq('brand_id', state.currentBrand.id),
+      db.from('tasks').select('*').eq('brand_id', state.currentBrand.id),
+      db.from('bosta_reports').select('*').eq('brand_id', state.currentBrand.id).order('upload_date', { ascending: false })
+    ]);
+    if (txRes.data) state.transactions = txRes.data;
+    if (prodRes.data) state.products = prodRes.data;
+    if (taskRes.data) state.tasks = taskRes.data;
+    if (bostaRes.data) state.bostaReports = bostaRes.data;
+    if (catRes.data) {
+      state.categories = {
+        in: catRes.data.filter(c => c.type === 'in').map(c => c.name),
+        out: catRes.data.filter(c => c.type === 'out').map(c => c.name)
+      };
+    }
+  }
+
+  (async () => {
+    const saved = localStorage.getItem('spectre_brand');
+    if (saved) {
+      state.currentBrand = JSON.parse(saved);
+      await loadBrandData();
+    }
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
