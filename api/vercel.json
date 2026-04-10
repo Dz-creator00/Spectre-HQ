@@ -1,6 +1,6 @@
 {
   "functions": {
     "api/shopify.js": { "runtime": "nodejs18.x" },
-    "api/bosta-analytics.js": { "runtime": "nodejs18.x" }
+    "api/bosta.js": { "runtime": "nodejs18.x" }
   }
 }
