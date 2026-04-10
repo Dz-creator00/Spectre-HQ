@@ -84,6 +84,12 @@ export default async function handler(req, res) {
 
     // Success!
     console.log('✅ Successfully fetched deliveries from Bosta');
+    console.log('Response structure:', {
+      hasData: !!responseData.data,
+      dataType: Array.isArray(responseData.data) ? 'array' : typeof responseData.data,
+      dataKeys: responseData.data ? Object.keys(responseData.data).slice(0, 10) : [],
+      sampleData: responseData.data
+    });
     
     // Bosta returns: { success: true, message: "...", data: {...} }
     return res.status(200).json({
